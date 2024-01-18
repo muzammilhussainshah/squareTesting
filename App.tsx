@@ -1,101 +1,70 @@
 import React, { useEffect } from 'react';
 import { View, Button } from 'react-native';
-import { SQIPCardEntry, SQIPCore } from 'react-native-square-in-app-payments';
-
-
-
-const redirectUri = 'https://your-redirect-uri';
+import { SQIPCore, SQIPCardEntry } from 'react-native-square-in-app-payments';
 
 const App = () => {
   useEffect(() => {
-    setSquareApp()
-  }, []);
-  
-
-  const setSquareApp = async () => {
-    // ComponentDidMount equivalent
-
-    // ...
-    let response = await SQIPCore.setSquareApplicationId('sandbox-sq0idb-yjgs0etD1Lvbx-l-u0Gq5w');
-    console.log(response, 'response')
-    // Cleanup logic for componentWillUnmount
-    return () => {
-      // ComponentWillUnmount equivalent
+    const initializeSquare = async () => {
+      await SQIPCore.setSquareApplicationId('sandbox-sq0idb-yjgs0etD1Lvbx-l-u0Gq5w');
+      // ... other initialization logic
     };
-  }
 
-  const authenticateWithSquare = async () => {
-    const authUrl = `https://connect.squareupsandbox.com/oauth2/authorize?client_id=your-client-id&redirect_uri=${redirectUri}&response_type=code`;
-  
+    initializeSquare();
+  }, []);
+
+  const onCardEntryComplete = () => {
+    // Update UI to notify user that the payment flow is completed
+  };
+
+  const onCardNonceRequestSuccess = async (cardDetails) => {
     try {
-      const result = await InAppBrowsew.openAuth(authUrl, redirectUri);
+
+      console.log(cardDetails,'cardDetailscardDetails')
+
+
+
+
       
-      // Extract the authorization code from the result and exchange it for an access token
-      const authorizationCode = result.code;
-  
-      // Make a request to Square's Token API to exchange the code for an access token
-      // Use the obtained access token for your Square API requests
-    } catch (error) {
-      console.error('OAuth error:', error);
+      // take payment with the card details
+      // await chargeCard(cardDetails);
+
+      // payment finished successfully
+      // you must call this method to close card entry
+      await SQIPCardEntry.completeCardEntry(onCardEntryComplete);
+    } catch (ex) {
+      // payment failed to complete due to error
+      // notify card entry to show processing error
+      await SQIPCardEntry.showCardNonceProcessingError(ex.message);
     }
   };
-  
-  // Call the authentication function when needed
-  authenticateWithSquare();
 
+  const onCardEntryCancel = () => {
+    // Handle the cancel callback
+  };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // const onCardEntryComplete = (response) => {
-  //   console.log(response, 'response')
-  // };
-
-  // const onCardNonceRequestSuccess = async (cardDetails) => {
-  //   try {
-  //     let response = await SQIPCardEntry.completeCardEntry(onCardEntryComplete);
-
-  //     console.log(response, 'response')
-  //   } catch (ex) {
-  //     await SQIPCardEntry.showCardNonceProcessingError(ex.message);
-  //   }
-  // };
-
-  // const onCardEntryCancel = () => {
-  // };
-
-  // const onStartCardEntry = async () => {
-  //   const cardEntryConfig = {
-  //     collectPostalCode: true,
-  //   };
-  //   await SQIPCardEntry.startCardEntryFlow(
-  //     cardEntryConfig,
-  //     onCardNonceRequestSuccess,
-  //     onCardEntryCancel,
-  //   );
-  // };
+  const onStartCardEntry = async () => {
+    const cardEntryConfig = {
+      collectPostalCode: false,
+    };
+    await SQIPCardEntry.startCardEntryFlow(
+      cardEntryConfig,
+      onCardNonceRequestSuccess,
+      onCardEntryCancel,
+    );
+  };
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* ... */}
-      {/* <Button onPress={onStartCardEntry} title="Start Card Entry" /> */}
+    <View style={styles.container}>
+      {/* ... other components */}
+      <Button onPress={onStartCardEntry} title="Start Card Entry" />
     </View>
   );
+};
+
+const styles = {
+  container: {
+    // Your container styles
+  },
 };
 
 export default App;
