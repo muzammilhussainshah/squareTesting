@@ -1,118 +1,101 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect } from 'react';
+import { View, Button } from 'react-native';
+import { SQIPCardEntry, SQIPCore } from 'react-native-square-in-app-payments';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const redirectUri = 'https://your-redirect-uri';
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App = () => {
+  useEffect(() => {
+    setSquareApp()
+  }, []);
+  
+
+  const setSquareApp = async () => {
+    // ComponentDidMount equivalent
+
+    // ...
+    let response = await SQIPCore.setSquareApplicationId('sandbox-sq0idb-yjgs0etD1Lvbx-l-u0Gq5w');
+    console.log(response, 'response')
+    // Cleanup logic for componentWillUnmount
+    return () => {
+      // ComponentWillUnmount equivalent
+    };
+  }
+
+  const authenticateWithSquare = async () => {
+    const authUrl = `https://connect.squareupsandbox.com/oauth2/authorize?client_id=your-client-id&redirect_uri=${redirectUri}&response_type=code`;
+  
+    try {
+      const result = await InAppBrowsew.openAuth(authUrl, redirectUri);
+      
+      // Extract the authorization code from the result and exchange it for an access token
+      const authorizationCode = result.code;
+  
+      // Make a request to Square's Token API to exchange the code for an access token
+      // Use the obtained access token for your Square API requests
+    } catch (error) {
+      console.error('OAuth error:', error);
+    }
+  };
+  
+  // Call the authentication function when needed
+  authenticateWithSquare();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // const onCardEntryComplete = (response) => {
+  //   console.log(response, 'response')
+  // };
+
+  // const onCardNonceRequestSuccess = async (cardDetails) => {
+  //   try {
+  //     let response = await SQIPCardEntry.completeCardEntry(onCardEntryComplete);
+
+  //     console.log(response, 'response')
+  //   } catch (ex) {
+  //     await SQIPCardEntry.showCardNonceProcessingError(ex.message);
+  //   }
+  // };
+
+  // const onCardEntryCancel = () => {
+  // };
+
+  // const onStartCardEntry = async () => {
+  //   const cardEntryConfig = {
+  //     collectPostalCode: true,
+  //   };
+  //   await SQIPCardEntry.startCardEntryFlow(
+  //     cardEntryConfig,
+  //     onCardNonceRequestSuccess,
+  //     onCardEntryCancel,
+  //   );
+  // };
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={{ flex: 1 }}>
+      {/* ... */}
+      {/* <Button onPress={onStartCardEntry} title="Start Card Entry" /> */}
     </View>
   );
-}
-
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="square testing">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
