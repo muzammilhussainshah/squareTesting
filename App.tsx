@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
-import { View, Button } from 'react-native';
-import { SQIPCore, SQIPCardEntry } from 'react-native-square-in-app-payments';
+import React, { useEffect, useState } from 'react';
+import { View, Button, Platform } from 'react-native';
+import { SQIPCore, SQIPCardEntry, SQIPGooglePay, } from 'react-native-square-in-app-payments';
 import axios from 'react-native-axios'
 
+// import {
+//   SQIPApplePay,
+// } from 'react-native-square-in-app-payments';
 
 export default async function chargeCardNonce(
   nonce: string,
@@ -112,7 +115,7 @@ const App = () => {
       // console.log(cardDetails, 'cardDetailscardDetails')
 
 
-      await chargeCardNonce(cardDetails?.nonce);
+      // await chargeCardNonce(cardDetails?.nonce);
 
 
       // take payment with the card details
@@ -143,10 +146,79 @@ const App = () => {
     );
   };
 
+
+
+  useEffect(() => {
+    const initializeDigitalWallet = async () => {
+      let digitalWalletEnabled = false;
+
+      if (Platform.OS === 'ios') {
+        // ... (iOS specific code)
+      } else if (Platform.OS === 'android') {
+        try {
+          await SQIPGooglePay.initializeGooglePay('LRXNYN5YGRHAF', SQIPGooglePay.EnvironmentTest);
+          digitalWalletEnabled = await SQIPGooglePay.canUseGooglePay();
+        } catch (ex) {
+          // Handle InAppPaymentsException
+        }
+      }
+
+    };
+
+    initializeDigitalWallet();
+  }, []); // Empty dependency array to mimic componentDidMount behavior
+
+  const onGooglePayNonceRequestSuccess = async (cardDetails) => {
+    try {
+      // console.log(cardDetails, 'cardDetails')
+      // take payment with the card nonce details
+      // you can take a charge
+      // await chargeCard(cardDetails);
+      // await chargeCardNonce(cardDetails?.nonce);
+
+    } catch (ex) {
+      // handle card nonce processing failure
+    }
+  };
+
+  const onGooglePayCancel = () => {
+    // handle google pay canceled
+  };
+
+  const onGooglePayNonceRequestFailure = (errorInfo) => {
+    // handle google pay failure
+  };
+
+  const onStartDigitalWallet = async () => {
+    if (Platform.OS === 'ios') {
+      // ...
+    } else if (Platform.OS === 'android') {
+      const googlePayConfig = {
+        price: '1.00',
+        currencyCode: 'USD',
+        priceStatus: SQIPGooglePay.TotalPriceStatusFinal,
+      };
+      try {
+        await SQIPGooglePay.requestGooglePayNonce(
+          googlePayConfig,
+          onGooglePayNonceRequestSuccess,
+          onGooglePayNonceRequestFailure,
+          onGooglePayCancel,
+        );
+      } catch (ex) {
+        // Handle InAppPaymentsException
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* ... other components */}
       <Button onPress={onStartCardEntry} title="Start Card Entry" />
+      <Button
+        onPress={onStartDigitalWallet}
+        title="Start Digital Wallet"
+      />
     </View>
   );
 };
